@@ -4,9 +4,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/use-theme';
 import { useProfileStore } from '@/stores/profile-store';
 import { Spacing } from '@/constants/theme';
-import { calculateSunSign, getMoonSign, calculateLifePath, calculateChineseZodiac, calculateCompatibility } from '@/utils/calculations';
+import { calculateSunSign, getMoonSign, calculateLifePath, calculateChineseZodiac, calculateCompatibility, getRisingSign, getBondTypeDescription, getElementHarmonyDescriptionForSigns } from '@/utils/calculations';
 import { CosmicIcon, type CosmicIconName } from '@/components/cosmic-icon';
-import type { Profile, CompatibilityScore } from '@/types/cosmic';
+import type { Profile, CompatibilityScore, CosmicBondType } from '@/types/cosmic';
 
 const SCORE_LABELS: { key: keyof CompatibilityScore; label: string; icon: CosmicIconName }[] = [
   { key: 'love', label: 'Love', icon: 'Heart' },
@@ -16,7 +16,17 @@ const SCORE_LABELS: { key: keyof CompatibilityScore; label: string; icon: Cosmic
   { key: 'communication', label: 'Communication', icon: 'MessageText1' },
   { key: 'spiritual', label: 'Spiritual', icon: 'MagicStar' },
   { key: 'family', label: 'Family', icon: 'Home2' },
+  { key: 'risingSign', label: 'Rising Sign', icon: 'Sun1' },
+  { key: 'elementHarmony', label: 'Element Harmony', icon: 'MagicStar' },
 ];
+
+const BOND_TYPE_LABELS: Record<CosmicBondType, { label: string; color: string }> = {
+  soulmate: { label: 'Soulmate Bond', color: '#FF69B4' },
+  karmic: { label: 'Karmic Bond', color: '#9B59B6' },
+  companion: { label: 'Companion Bond', color: '#3498DB' },
+  mentor: { label: 'Mentor Bond', color: '#2ECC71' },
+  catalyst: { label: 'Catalyst Bond', color: '#E67E22' },
+};
 
 function getAdvice(scores: CompatibilityScore): string[] {
   const advice: string[] = [];
@@ -29,6 +39,7 @@ function getAdvice(scores: CompatibilityScore): string[] {
   if (scores.love < scores.friendship) advice.push('Build on your natural friendship — romantic depth often follows genuine connection.');
   if (scores.spiritual < 60) advice.push('Explore shared spiritual practices to align your deeper values.');
   if (scores.family < 65) advice.push('Discuss family values and expectations early to build alignment.');
+  if (scores.elementHarmony < 60) advice.push('Your elemental natures differ — find activities that honor both your energies.');
   return advice;
 }
 
@@ -46,6 +57,8 @@ function getGrowthAreas(scores: CompatibilityScore): string[] {
       communication: 'Practice active listening and non-defensive expression.',
       spiritual: 'Explore shared spiritual or philosophical practices.',
       family: 'Align on family traditions, boundaries, and future visions.',
+      risingSign: 'First impressions differ — appreciate each other\'s unique social personas.',
+      elementHarmony: 'Your elemental mix invites growth — find balanced activities together.',
     };
     areas.push(map[key] ?? 'Conscious effort in this area will bring balance.');
   }
@@ -76,14 +89,38 @@ export default function CompatibilityScreen() {
     const chineseA = calculateChineseZodiac(ay);
     const chineseB = calculateChineseZodiac(by);
 
+    // Rising signs
+    const birthHourA = a.birthTime ? parseInt(a.birthTime.split(':')[0], 10) : 12;
+    const birthHourB = b.birthTime ? parseInt(b.birthTime.split(':')[0], 10) : 12;
+    const risingA = getRisingSign(zodiacA, a.birthTime);
+    const risingB = getRisingSign(zodiacB, b.birthTime);
+
     const scores = calculateCompatibility({
       zodiacA, zodiacB,
       moonSignA: moonA, moonSignB: moonB,
       lifePathA, lifePathB,
       chineseAnimalA: chineseA, chineseAnimalB: chineseB,
+      risingSignA: risingA, risingSignB: risingB,
     });
 
     const avg = Math.round(Object.values(scores).reduce((s, c) => s + c, 0) / Object.values(scores).length);
+
+    // Determine cosmic bond type from scores
+    const spiritualScore = scores.spiritual;
+    const loveScore = scores.love;
+    const friendshipScore = scores.friendship;
+    const communicationScore = scores.communication;
+    const businessScore = scores.business;
+
+    let cosmicBondType: CosmicBondType = 'companion';
+    if (spiritualScore >= 80 && loveScore >= 75) cosmicBondType = 'soulmate';
+    else if (spiritualScore >= 70 && avg < 65) cosmicBondType = 'karmic';
+    else if (friendshipScore >= 75 && loveScore < friendshipScore) cosmicBondType = 'companion';
+    else if (communicationScore >= 70 && spiritualScore >= 60) cosmicBondType = 'mentor';
+    else if (businessScore >= 75 && avg < 70) cosmicBondType = 'catalyst';
+    else if (avg >= 75) cosmicBondType = 'soulmate';
+    else if (avg >= 60) cosmicBondType = 'companion';
+    else cosmicBondType = 'catalyst';
 
     const strengths: string[] = [];
     const weaknesses: string[] = [];
@@ -97,10 +134,19 @@ export default function CompatibilityScreen() {
     if (scores.communication < 60) weaknesses.push('Communication styles differ — practice patience');
     if (scores.spiritual < 60) weaknesses.push('Spiritual values may not fully align');
 
+    // Specific sign pair advice
+    const elementHarmonyDesc = getElementHarmonyDescriptionForSigns(zodiacA, zodiacB);
+    const bondDesc = getBondTypeDescription(cosmicBondType);
+
     const advice = getAdvice(scores);
     const growthAreas = getGrowthAreas(scores);
 
-    return { scores, strengths, weaknesses, advice, growthAreas, average: avg, profileA: a, profileB: b };
+    return {
+      scores, strengths, weaknesses, advice, growthAreas,
+      average: avg, profileA: a, profileB: b,
+      cosmicBondType, bondDesc, elementHarmonyDesc,
+      risingA, risingB,
+    };
   }, [profileA, profileB, profiles]);
 
   return (
@@ -141,6 +187,17 @@ export default function CompatibilityScreen() {
                   </View>
                 </View>
 
+                {/* Cosmic Bond Type */}
+                <View style={[styles.bondCard, { backgroundColor: theme.card, borderColor: BOND_TYPE_LABELS[result.cosmicBondType].color + '60' }]}>
+                  <View style={[styles.bondBadge, { backgroundColor: BOND_TYPE_LABELS[result.cosmicBondType].color + '20' }]}>
+                    <Text style={[styles.bondType, { color: BOND_TYPE_LABELS[result.cosmicBondType].color }]}>
+                      {BOND_TYPE_LABELS[result.cosmicBondType].label}
+                    </Text>
+                  </View>
+                  <Text style={[styles.bondDesc, { color: theme.text }]}>{result.bondDesc}</Text>
+                  <Text style={[styles.elementDesc, { color: theme.textSecondary }]}>{result.elementHarmonyDesc}</Text>
+                </View>
+
                 <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
                   <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Category Scores</Text>
                   {SCORE_LABELS.map(({ key, label, icon }) => {
@@ -170,12 +227,14 @@ export default function CompatibilityScreen() {
                   ))}
                 </View>
 
-                <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
-                  <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Growth Areas</Text>
-                  {result.growthAreas.map((g, i) => (
-                    <Text key={i} style={[styles.bulletText, { color: theme.accentOrange }]}>○ {g}</Text>
-                  ))}
-                </View>
+                {result.growthAreas.length > 0 && (
+                  <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+                    <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Growth Areas</Text>
+                    {result.growthAreas.map((g, i) => (
+                      <Text key={i} style={[styles.bulletText, { color: theme.accentOrange }]}>○ {g}</Text>
+                    ))}
+                  </View>
+                )}
 
                 {result.strengths.length > 0 && (
                   <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
@@ -188,7 +247,7 @@ export default function CompatibilityScreen() {
 
                 {result.weaknesses.length > 0 && (
                   <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
-                    <Text style={[styles.statLabel, { color: theme.accentOrange }]}>Growth Areas</Text>
+                    <Text style={[styles.statLabel, { color: theme.accentOrange }]}>Challenges</Text>
                     {result.weaknesses.map((w, i) => (
                       <Text key={i} style={[styles.bulletText, { color: theme.text }]}>✦ {w}</Text>
                     ))}
@@ -253,7 +312,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   statLabel: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
-
   scoreLabel: { fontSize: 13, fontWeight: '600' },
   scoreRow: { gap: 4 },
   scoreLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -273,4 +331,9 @@ const styles = StyleSheet.create({
   },
   scoreValue: { fontSize: 13, fontWeight: '700' },
   bulletText: { fontSize: 14, lineHeight: 22 },
+  bondCard: { borderRadius: 16, borderWidth: 1, padding: Spacing.four, gap: 8 },
+  bondBadge: { alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
+  bondType: { fontSize: 14, fontWeight: '800' },
+  bondDesc: { fontSize: 14, lineHeight: 20 },
+  elementDesc: { fontSize: 13, lineHeight: 18, fontStyle: 'italic' },
 });

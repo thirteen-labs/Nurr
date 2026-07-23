@@ -9,9 +9,9 @@ import { ZODIAC_SIGNS } from '@/constants/cosmic/zodiac';
 import { ELEMENT_MEANINGS } from '@/constants/cosmic/chineseZodiac';
 import { MOON_SIGNS } from '@/constants/cosmic/moonSigns';
 import { RISING_SIGNS } from '@/constants/cosmic/risingSigns';
-import { SPIRIT_ANIMALS } from '@/constants/cosmic/spiritAnimals';
 import { findBirthstone } from '@/constants/cosmic/birthstones';
 import { calculateSunSign, calculateRisingSign, calculateLifePath, calculateDestinyNumber, calculateChineseZodiac, calculateChineseElement, getBirthMoonPhase, getMoonSign } from '@/utils/calculations';
+import { getZodiacElement } from '@/utils/calculations';
 
 interface BlueprintEntry {
   label: string;
@@ -38,11 +38,50 @@ export default function BlueprintScreen() {
     const elementData = ELEMENT_MEANINGS[chineseElement];
     const lifePath = calculateLifePath(activeProfile.birthDate);
     const destinyNum = calculateDestinyNumber(activeProfile.name);
-    const spiritAnimal = SPIRIT_ANIMALS[((lifePath + destinyNum) % 10 + y) % SPIRIT_ANIMALS.length];
+
+    // Spirit animal (multi-factor)
+    const spiritAnimalIdx = (lifePath + destinyNum + y + d) % 16;
+    const spiritAnimals = [
+      "Wolf", "Bear", "Fox", "Owl", "Lion", "Eagle", "Raven", "Panther",
+      "Horse", "Snake", "Dragon", "Dolphin", "Deer", "Hawk", "Bear", "Salmon"
+    ];
+    const spiritAnimal = spiritAnimals[spiritAnimalIdx >= 0 ? spiritAnimalIdx : 0];
+
     const birthstone = findBirthstone(m);
     const moonPhase = getBirthMoonPhase(activeProfile.birthDate);
     const moonData = MOON_SIGNS[moonSign];
     const risingData = RISING_SIGNS[risingSign];
+
+    // Element balance
+    const sunEl = getZodiacElement(sunSign);
+    const moonEl = getZodiacElement(moonSign);
+    const risingEl = getZodiacElement(risingSign);
+    const elementBalance = { fire: 0, earth: 0, air: 0, water: 0 };
+    elementBalance[sunEl] += 2;
+    elementBalance[moonEl] += 1.5;
+    elementBalance[risingEl] += 1;
+    const chineseMap: Record<string, keyof typeof elementBalance> = {
+      fire: 'fire', wood: 'earth', earth: 'earth', metal: 'air', water: 'water',
+    };
+    elementBalance[chineseMap[chineseElement]] += 1;
+
+    // Birth day significance
+    const birthDay = new Date(y, m - 1, d);
+    const dayOfWeek = birthDay.getDay();
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayRulers = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn'];
+    const daySignificance = `Born on ${dayNames[dayOfWeek]} — ruled by ${dayRulers[dayOfWeek]}`;
+
+    // Chinese element modifier
+    const animalCap = chineseAnimal.charAt(0).toUpperCase() + chineseAnimal.slice(1);
+    const elemCap = chineseElement.charAt(0).toUpperCase() + chineseElement.slice(1);
+    const chineseModifier = `${elemCap} ${animalCap}`;
+
+    // Lucky attributes (multi-factor)
+    const luckyNumber = (lifePath + d) % 9 + 1;
+    const signColors = sunData.luckyColors ?? ['Gold'];
+    const luckyColor = signColors[(m - 1) % signColors.length];
+    const luckyDay = sunData.luckyDays?.[0] ?? 'Sunday';
 
     const entries: BlueprintEntry[] = [
       { label: "Sun Sign", value: `${sunData.symbol} ${capitalize(sunSign)}`, sub: sunData.dateRange },
@@ -50,16 +89,23 @@ export default function BlueprintScreen() {
       { label: "Rising Sign", value: `⬆ ${capitalize(risingSign)}` },
       { label: "Life Path", value: String(lifePath) },
       { label: "Destiny Number", value: String(destinyNum) },
-      { label: "Chinese Zodiac", value: `${capitalize(chineseAnimal)} · ${elementData.name}` },
-      { label: "Element", value: elementData.name, sub: elementData.direction },
-      { label: "Spirit Animal", value: spiritAnimal.animal, sub: spiritAnimal.element },
+      { label: "Chinese Zodiac", value: chineseModifier, sub: elementData.direction },
+      { label: "Element", value: elementData.name, sub: elementData.description.slice(0, 80) + '...' },
+      { label: "Spirit Animal", value: spiritAnimal },
       { label: "Dominant Planet", value: sunData.rulingPlanet },
       { label: "Birthstone", value: birthstone.stone },
       { label: "Birth Moon Phase", value: capitalize(moonPhase.replace(/-/g, ' ')) },
-      { label: "Lucky Number", value: String(sunData.luckyNumbers[0]) },
-      { label: "Lucky Color", value: sunData.luckyColors[0] },
+      { label: "Lucky Number", value: String(luckyNumber) },
+      { label: "Lucky Color", value: luckyColor },
+      { label: "Lucky Day", value: luckyDay },
+      { label: "Birth Day", value: daySignificance },
     ];
-    return { entries, sunSign, moonSign, risingSign, sunData, moonData, risingData, chineseAnimal, chineseElement, lifePath, destinyNum, spiritAnimal, birthstone, moonPhase, elementData };
+
+    return {
+      entries, sunSign, moonSign, risingSign, sunData, moonData, risingData,
+      chineseAnimal, chineseElement, lifePath, destinyNum, spiritAnimal,
+      birthstone, moonPhase, elementData, elementBalance,
+    };
   }, [activeProfile]);
 
   return (
@@ -76,7 +122,7 @@ export default function BlueprintScreen() {
           {activeProfile && blueprint && (
             <Pressable
               onPress={() => {
-                const text = `Cosmic Blueprint for ${activeProfile.name}. Sun Sign ${blueprint.sunData.symbol} ${capitalize(blueprint.sunSign)}. Moon Sign ${capitalize(blueprint.moonSign)}. Rising Sign ${capitalize(blueprint.risingSign)}. Life Path ${blueprint.lifePath}. Destiny Number ${blueprint.destinyNum}. Chinese Zodiac ${capitalize(blueprint.chineseAnimal)}. Birthstone ${blueprint.birthstone.stone}. Spirit Animal ${blueprint.spiritAnimal.animal}.`;
+                const text = `Cosmic Blueprint for ${activeProfile.name}. Sun Sign ${blueprint.sunData.symbol} ${capitalize(blueprint.sunSign)}. Moon Sign ${capitalize(blueprint.moonSign)}. Rising Sign ${capitalize(blueprint.risingSign)}. Life Path ${blueprint.lifePath}. Destiny Number ${blueprint.destinyNum}. Chinese Zodiac ${capitalize(blueprint.chineseAnimal)}. Birthstone ${blueprint.birthstone.stone}. Spirit Animal ${blueprint.spiritAnimal}.`;
                 speak(text);
               }}
               style={({ pressed }) => [styles.speakBtn, { backgroundColor: isSpeaking ? theme.accent + '30' : theme.card, borderColor: theme.cardBorder, opacity: pressed ? 0.7 : 1 }]}
@@ -97,6 +143,28 @@ export default function BlueprintScreen() {
                 {blueprint.sunData.symbol} {capitalize(blueprint.sunSign)} ☽ {blueprint.moonSign !== blueprint.sunSign ? capitalize(blueprint.moonSign) : ''} ⬆ {capitalize(blueprint.risingSign)}
               </Text>
               <Text style={[styles.astroSub, { color: theme.textSecondary }]}>Sun · Moon · Rising</Text>
+            </View>
+
+            {/* Element Balance */}
+            <View style={[styles.balanceCard, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+              <Text style={[styles.balanceLabel, { color: theme.textSecondary }]}>Element Balance</Text>
+              {(['fire', 'earth', 'air', 'water'] as const).map((el) => {
+                const value = blueprint.elementBalance[el];
+                const maxVal = Math.max(blueprint.elementBalance.fire, blueprint.elementBalance.earth, blueprint.elementBalance.air, blueprint.elementBalance.water, 1);
+                const pct = (value / maxVal) * 100;
+                const colors: Record<string, string> = { fire: '#FF6B35', earth: '#8B7355', air: '#87CEEB', water: '#4169E1' };
+                return (
+                  <View key={el} style={styles.balanceRow}>
+                    <Text style={[styles.balanceElement, { color: theme.text }]}>{capitalize(el)}</Text>
+                    <View style={styles.balanceBarWrap}>
+                      <View style={[styles.balanceBar, { backgroundColor: colors[el] + '20' }]}>
+                        <View style={[styles.balanceBarFill, { backgroundColor: colors[el], width: `${pct}%` as any }]} />
+                      </View>
+                    </View>
+                    <Text style={[styles.balanceValue, { color: theme.textSecondary }]}>{value.toFixed(1)}</Text>
+                  </View>
+                );
+              })}
             </View>
 
             <View style={styles.grid}>
@@ -132,6 +200,14 @@ const styles = StyleSheet.create({
   astroCard: { borderRadius: 14, borderWidth: 1, padding: Spacing.four, alignItems: 'center', gap: 4 },
   astroTitle: { fontSize: 20, fontWeight: '800', textAlign: 'center' },
   astroSub: { fontSize: 13, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
+  balanceCard: { borderRadius: 14, borderWidth: 1, padding: Spacing.four, gap: 8 },
+  balanceLabel: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 },
+  balanceRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  balanceElement: { width: 50, fontSize: 13, fontWeight: '600', textTransform: 'capitalize' },
+  balanceBarWrap: { flex: 1, height: 16 },
+  balanceBar: { flex: 1, borderRadius: 8, overflow: 'hidden' },
+  balanceBarFill: { position: 'absolute', top: 0, left: 0, bottom: 0, borderRadius: 8 },
+  balanceValue: { width: 30, fontSize: 12, fontWeight: '600', textAlign: 'right' },
   grid: { gap: 10 },
   card: { borderRadius: 12, borderWidth: 1, padding: Spacing.three, gap: 2 },
   cardLabel: { fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.3 },

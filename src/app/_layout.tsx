@@ -70,7 +70,13 @@ export default function RootLayout() {
           <Stack.Screen name="brands" />
           <Stack.Screen name="brand/[slug]" />
           <Stack.Screen name="reports" />
-          <Stack.Screen name="desktop-widgets" />
+          <Stack.Screen name="birth-chart" />
+          <Stack.Screen name="transits" />
+          <Stack.Screen name="insights" />
+          <Stack.Screen name="share" />
+          <Stack.Screen name="notifications" />
+          <Stack.Screen name="favorites" />
+          <Stack.Screen name="backup" />
           <Stack.Screen name="widgets" />
           <Stack.Screen name="analytics" />
           <Stack.Screen name="search" />

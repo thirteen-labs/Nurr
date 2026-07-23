@@ -77,7 +77,7 @@ export default function ForecastScreen() {
           {data && (
             <Pressable
               onPress={() => {
-                const txt = `Forecast for ${activeProfile?.name}. ${data.forecast.love}. ${data.forecast.career}. ${data.forecast.health}. ${data.forecast.finance}. Energy score ${data.energy.overall} out of 100.`;
+                const txt = `Forecast for ${activeProfile?.name}. ${data.forecast.love}. ${data.forecast.career}. ${data.forecast.health}. ${data.forecast.finance}. Energy score ${data.energy.overall} out of 100. ${data.energy.planetaryRuler}. ${data.energy.lunarInfluence}`;
                 speak(txt);
               }}
               style={({ pressed }) => [styles.speakBtn, { backgroundColor: isSpeaking ? theme.accent + '30' : theme.card, borderColor: theme.cardBorder, opacity: pressed ? 0.7 : 1 }]}
@@ -109,6 +109,16 @@ export default function ForecastScreen() {
                 <Text style={[styles.energyScore, { color: theme.accent }]}>{data.energy.overall}</Text>
                 <Text style={[styles.energyMax, { color: theme.textSecondary }]}>/100</Text>
               </View>
+
+              <View style={[styles.influenceCard, { backgroundColor: theme.surface }]}>
+                <Text style={[styles.influenceLabel, { color: theme.accent }]}>Planetary Ruler</Text>
+                <Text style={[styles.influenceText, { color: theme.text }]}>{data.energy.planetaryRuler}</Text>
+              </View>
+              <View style={[styles.influenceCard, { backgroundColor: theme.surface }]}>
+                <Text style={[styles.influenceLabel, { color: theme.accent }]}>Lunar Influence</Text>
+                <Text style={[styles.influenceText, { color: theme.text }]}>{data.energy.lunarInfluence}</Text>
+              </View>
+
               <View style={styles.energyBars}>
                 {(['career', 'love', 'finance', 'health', 'spiritual'] as const).map((cat) => {
                   const color = getLevelColor(data.energy[cat], theme);
@@ -160,27 +170,15 @@ export default function ForecastScreen() {
 
             <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
               <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Additional Insights</Text>
-              <View style={styles.readingRow}>
-                <Text style={styles.readingIcon}>🌌</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.readingLabel, { color: theme.accent }]}>Spiritual</Text>
-                  <Text style={[styles.readingText, { color: theme.text }]}>{data.forecast.spiritual}</Text>
+              {(['spiritual', 'travel', 'education'] as const).map((cat) => (
+                <View key={cat} style={styles.readingRow}>
+                  <Text style={styles.readingIcon}>{CATEGORY_ICONS[cat]}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.readingLabel, { color: theme.accent }]}>{capitalize(cat)}</Text>
+                    <Text style={[styles.readingText, { color: theme.text }]}>{data.forecast[cat]}</Text>
+                  </View>
                 </View>
-              </View>
-              <View style={styles.readingRow}>
-                <Text style={styles.readingIcon}>✈</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.readingLabel, { color: theme.accent }]}>Travel</Text>
-                  <Text style={[styles.readingText, { color: theme.text }]}>{data.forecast.travel}</Text>
-                </View>
-              </View>
-              <View style={styles.readingRow}>
-                <Text style={styles.readingIcon}>📚</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.readingLabel, { color: theme.accent }]}>Education</Text>
-                  <Text style={[styles.readingText, { color: theme.text }]}>{data.forecast.education}</Text>
-                </View>
-              </View>
+              ))}
             </View>
           </>
         ) : null}
@@ -213,12 +211,15 @@ const styles = StyleSheet.create({
   affirmation: { fontSize: 17, fontWeight: '600', lineHeight: 24, fontStyle: 'italic' },
   mantra: { fontSize: 14, fontWeight: '700', textAlign: 'center', paddingVertical: 6 },
   focus: { fontSize: 13, fontWeight: '500', lineHeight: 18 },
-  energyCard: { borderRadius: 20, borderWidth: 1, padding: Spacing.four, gap: 4 },
+  energyCard: { borderRadius: 20, borderWidth: 1, padding: Spacing.four, gap: 6 },
   energyLabel: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
   energyRow: { flexDirection: 'row', alignItems: 'baseline' },
   energyScore: { fontSize: 56, fontWeight: '900' },
   energyMax: { fontSize: 20, fontWeight: '600', marginLeft: 4 },
-  energyBars: { gap: 10, marginTop: 8 },
+  influenceCard: { borderRadius: 10, padding: Spacing.three, gap: 2 },
+  influenceLabel: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+  influenceText: { fontSize: 13, fontWeight: '500', lineHeight: 18 },
+  energyBars: { gap: 10, marginTop: 4 },
   energyBarWrap: { height: 32 },
   energyBar: {
     flex: 1,

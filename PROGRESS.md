@@ -311,12 +311,23 @@
 
 ---
 
+### Recent Additions
+- [x] Removed Desktop App placeholder screen
+- [x] Full Tarot spreads (5 Card, 7 Card, Celtic Cross, Relationship, Career, Year Ahead)
+- [x] Tarot card flip animation (tap to reveal, flip all)
+- [x] Tarot reading save to database
+- [x] Notification scheduling via `expo-notifications` with DB persistence
+- [x] Notification history view
+- [x] Favorites system — DB CRUD + dedicated screen
+- [x] Backup & Restore — JSON export/import with file picker and sharing
+- [x] Multi-decade moon calendar (61-year range with year picker)
+
 ## Summary
 
 | Area | Status |
 |------|--------|
 | Data constants (zodiac, tarot, chinese, etc.) | 100% complete |
-| Screens with real functionality | 24/25 complete (Desktop App placeholder only) |
+| Screens with real functionality | 26/26 complete |
 | Calculation engines | 10/10 complete |
 | Infrastructure (DB, stores, navigation) | 100% complete |
 | MMKV caching layer | 100% complete |
@@ -328,5 +339,9 @@
 | Voice Guidance (TTS) | 100% complete |
 | Analytics & Charting | 100% complete |
 | Chaldean Letterology | 100% complete |
-| Desktop App | Placeholder only |
-| **Overall** | **~93%** |
+| Tarot spreads | 8/8 complete (all spreads wired) |
+| Notification scheduling | 100% complete (expo-notifications + DB) |
+| Favorites system | 100% complete (DB + UI) |
+| Backup & Restore | 100% complete (JSON export/import) |
+| Moon Calendar | 100% complete (multi-decade) |
+| **Overall** | **~97%** |

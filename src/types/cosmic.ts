@@ -126,6 +126,13 @@ export interface ChineseZodiacData {
 // --- Numerology ---
 export type NumerologyNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 11 | 22 | 33;
 
+export interface PlanesOfExpression {
+  physical: number;
+  emotional: number;
+  mental: number;
+  spiritual: number;
+}
+
 export interface NumerologyResult {
   lifePath: number;
   destiny: number;
@@ -139,6 +146,11 @@ export interface NumerologyResult {
   personalYear: number;
   personalMonth: number;
   personalDay: number;
+  balanceNumber: number;
+  hiddenPassion: number;
+  subconsciousConfidence: number;
+  rationalThought: number;
+  planesOfExpression: PlanesOfExpression;
 }
 
 export interface NumerologyInterpretation {
@@ -332,7 +344,11 @@ export interface CompatibilityScore {
   communication: number;
   spiritual: number;
   family: number;
+  risingSign: number;
+  elementHarmony: number;
 }
+
+export type CosmicBondType = "soulmate" | "karmic" | "companion" | "mentor" | "catalyst";
 
 export interface CompatibilityResult {
   profileA: string;
@@ -342,6 +358,8 @@ export interface CompatibilityResult {
   weaknesses: string[];
   advice: string[];
   growthAreas: string[];
+  cosmicBondType: CosmicBondType;
+  specificAdvice: string[];
 }
 
 // --- Forecast ---
@@ -379,9 +397,18 @@ export interface EnergyScore {
   finance: "high" | "moderate" | "low";
   health: "high" | "moderate" | "low";
   spiritual: "high" | "moderate" | "low";
+  lunarInfluence: string;
+  planetaryRuler: string;
 }
 
 // --- Cosmic Blueprint ---
+export interface ElementBalance {
+  fire: number;
+  earth: number;
+  air: number;
+  water: number;
+}
+
 export interface CosmicBlueprint {
   profileId: string;
   sunSign: ZodiacSign;
@@ -402,6 +429,9 @@ export interface CosmicBlueprint {
   luckyDirection: string;
   energyScore: EnergyScore;
   birthMoonPhase: MoonPhase;
+  elementBalance: ElementBalance;
+  birthDaySignificance: string;
+  chineseElementModifier: string;
 }
 
 // --- Journal ---
@@ -496,6 +526,180 @@ export interface Brand {
   energy: string;
 }
 
+// --- Birth Chart ---
+export type AspectType = 'conjunction' | 'sextile' | 'square' | 'trine' | 'opposition';
+export type HouseSystem = 'placidus' | 'whole-sign';
+
+export interface PlanetaryPosition {
+  planet: PlanetName;
+  sign: ZodiacSign;
+  degree: number;
+  house: number;
+  retrograde: boolean;
+}
+
+export interface ChartAspect {
+  planet1: PlanetName;
+  planet2: PlanetName;
+  type: AspectType;
+  degree: number;
+  orb: number;
+  applying: boolean;
+}
+
+export interface HouseCusp {
+  house: number;
+  sign: ZodiacSign;
+  degree: number;
+}
+
+export interface BirthChart {
+  profileId: string;
+  planetaryPositions: PlanetaryPosition[];
+  aspects: ChartAspect[];
+  houses: HouseCusp[];
+  ascendant: ZodiacSign;
+  midheaven: ZodiacSign;
+  elementDistribution: Record<ZodiacElement, number>;
+  modalityDistribution: Record<ZodiacQuality, number>;
+  dominantPlanet: PlanetName;
+  chartRuler: PlanetName;
+}
+
+// --- Transits ---
+export interface TransitEntry {
+  planet: PlanetName;
+  currentSign: ZodiacSign;
+  currentDegree: number;
+  retrograde: boolean;
+  natalSign: ZodiacSign;
+  natalHouse: number;
+  transitHouse: number;
+  aspectToNatal: AspectType | null;
+  interpretation: string;
+}
+
+export interface TransitReport {
+  profileId: string;
+  date: string;
+  transits: TransitEntry[];
+  significantTransits: TransitEntry[];
+  overallTheme: string;
+  advice: string[];
+}
+
+// --- Offline AI Insights ---
+export type InsightCategory = 'pattern' | 'karmic' | 'growth' | 'predictive' | 'relationship' | 'elemental';
+
+export interface LifePattern {
+  type: string;
+  title: string;
+  description: string;
+  ageRange: string;
+  recurring: boolean;
+  guidance: string;
+}
+
+export interface KarmicLesson {
+  number: number;
+  title: string;
+  description: string;
+  pastLifeTheme: string;
+  currentLifeTask: string;
+  resolution: string;
+}
+
+export interface CosmicInsight {
+  id: string;
+  category: InsightCategory;
+  title: string;
+  summary: string;
+  detail: string;
+  confidence: number;
+  relatedModules: string[];
+  actionable: boolean;
+  action?: string;
+}
+
+export interface CosmicInsightReport {
+  profileId: string;
+  generatedAt: string;
+  patterns: LifePattern[];
+  karmicLessons: KarmicLesson[];
+  insights: CosmicInsight[];
+  elementalAdvice: string[];
+  predictiveOutlook: string;
+  relationshipPatterns: string[];
+  growthRecommendations: string[];
+}
+
+// --- Notifications ---
+export type NotificationType =
+  | 'daily-energy'
+  | 'moon-phase'
+  | 'personal-cycle'
+  | 'transit-alert'
+  | 'manifestation-window'
+  | 'birthday';
+
+export interface NotificationPreference {
+  id: string;
+  profileId: string;
+  type: NotificationType;
+  enabled: boolean;
+  time: string;
+  days: number[];
+}
+
+export interface NotificationContent {
+  id: string;
+  profileId: string;
+  type: NotificationType;
+  title: string;
+  body: string;
+  data: Record<string, string>;
+  scheduledDate: string;
+  read: boolean;
+  createdAt: string;
+}
+
+// --- Widgets ---
+export type WidgetType =
+  | 'energy'
+  | 'moon'
+  | 'forecast'
+  | 'angel'
+  | 'numerology'
+  | 'chinese-zodiac'
+  | 'daily-message'
+  | 'transit';
+
+export interface WidgetConfig {
+  type: WidgetType;
+  enabled: boolean;
+  order: number;
+}
+
+export interface WidgetData {
+  type: WidgetType;
+  title: string;
+  value: string;
+  subtitle: string;
+  icon: string;
+  color: string;
+  data?: Record<string, string>;
+}
+
+// --- Sharing ---
+export type ShareCardType = 'blueprint' | 'forecast' | 'numerology' | 'compatibility' | 'daily';
+
+export interface ShareCardConfig {
+  type: ShareCardType;
+  profileId: string;
+  secondProfileId?: string;
+  template: 'cosmic' | 'minimal' | 'mystic';
+}
+
 // --- App Settings ---
 export interface AppSettings {
   theme: CosmicTheme;
@@ -513,7 +717,15 @@ export type CosmicTheme =
   | "solar"
   | "golden-mystic"
   | "emerald"
-  | "cosmic-purple";
+  | "cosmic-purple"
+  | "rose-gold"
+  | "arctic"
+  | "sunset"
+  | "ocean"
+  | "crimson"
+  | "lavender"
+  | "obsidian"
+  | "aurora";
 
 // --- Navigation ---
 export type CosmicModule =
@@ -541,7 +753,14 @@ export type CosmicModule =
   | "life-cycles"
   | "sacred-geometry"
   | "reports"
-  | "desktop-widgets"
+
   | "widgets"
   | "analytics"
-  | "brands";
+  | "brands"
+  | "birth-chart"
+  | "transits"
+  | "share"
+  | "insights"
+  | "notifications"
+  | "favorites"
+  | "backup";

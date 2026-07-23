@@ -252,6 +252,29 @@ export async function initDatabase(): Promise<void> {
       createdAt TEXT NOT NULL,
       FOREIGN KEY (profileId) REFERENCES profiles(id) ON DELETE CASCADE
     );
+
+    CREATE TABLE IF NOT EXISTS notification_preferences (
+      id TEXT PRIMARY KEY,
+      profileId TEXT NOT NULL,
+      type TEXT NOT NULL,
+      enabled INTEGER NOT NULL DEFAULT 1,
+      time TEXT NOT NULL DEFAULT '08:00',
+      days TEXT NOT NULL DEFAULT '[0,1,2,3,4,5,6]',
+      FOREIGN KEY (profileId) REFERENCES profiles(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS notification_history (
+      id TEXT PRIMARY KEY,
+      profileId TEXT NOT NULL,
+      type TEXT NOT NULL,
+      title TEXT NOT NULL,
+      body TEXT NOT NULL,
+      data TEXT NOT NULL DEFAULT '{}',
+      scheduledDate TEXT NOT NULL,
+      read INTEGER NOT NULL DEFAULT 0,
+      createdAt TEXT NOT NULL,
+      FOREIGN KEY (profileId) REFERENCES profiles(id) ON DELETE CASCADE
+    );
   `);
 }
 
@@ -442,6 +465,112 @@ export async function loadSettings(): Promise<AppSettings | null> {
   };
 }
 
+// --- Favorites ---
+
+export interface FavoriteRow {
+  id: string;
+  profileId: string;
+  itemType: string;
+  itemId: string;
+  label: string | null;
+  createdAt: string;
+}
+
+export async function getFavorites(profileId: string): Promise<FavoriteRow[]> {
+  if (!db) await initDatabase();
+  return await db!.getAllAsync<FavoriteRow>(
+    'SELECT * FROM favorites WHERE profileId = ? ORDER BY createdAt DESC', profileId
+  );
+}
+
+export async function addFavorite(fav: FavoriteRow): Promise<void> {
+  if (!db) await initDatabase();
+  await db!.runAsync(
+    'INSERT OR IGNORE INTO favorites (id, profileId, itemType, itemId, label, createdAt) VALUES (?, ?, ?, ?, ?, ?)',
+    fav.id, fav.profileId, fav.itemType, fav.itemId, fav.label, fav.createdAt
+  );
+}
+
+export async function removeFavorite(profileId: string, itemType: string, itemId: string): Promise<void> {
+  if (!db) await initDatabase();
+  await db!.runAsync('DELETE FROM favorites WHERE profileId = ? AND itemType = ? AND itemId = ?', profileId, itemType, itemId);
+}
+
+export async function isFavorite(profileId: string, itemType: string, itemId: string): Promise<boolean> {
+  if (!db) await initDatabase();
+  const row = await db!.getFirstAsync<{ id: string }>(
+    'SELECT id FROM favorites WHERE profileId = ? AND itemType = ? AND itemId = ?', profileId, itemType, itemId
+  );
+  return !!row;
+}
+
+// --- Notification Preferences ---
+
+export async function getNotificationPreferences(profileId: string): Promise<any[]> {
+  if (!db) await initDatabase();
+  return await db!.getAllAsync(
+    'SELECT * FROM notification_preferences WHERE profileId = ?', profileId
+  );
+}
+
+export async function upsertNotificationPreference(pref: { id: string; profileId: string; type: string; enabled: number; time: string; days: string }): Promise<void> {
+  if (!db) await initDatabase();
+  await db!.runAsync(
+    'INSERT OR REPLACE INTO notification_preferences (id, profileId, type, enabled, time, days) VALUES (?, ?, ?, ?, ?, ?)',
+    pref.id, pref.profileId, pref.type, pref.enabled, pref.time, pref.days
+  );
+}
+
+export async function addNotificationHistory(entry: { id: string; profileId: string; type: string; title: string; body: string; data: string; scheduledDate: string; read: number; createdAt: string }): Promise<void> {
+  if (!db) await initDatabase();
+  await db!.runAsync(
+    'INSERT INTO notification_history (id, profileId, type, title, body, data, scheduledDate, read, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    entry.id, entry.profileId, entry.type, entry.title, entry.body, entry.data, entry.scheduledDate, entry.read, entry.createdAt
+  );
+}
+
+export async function getNotificationHistory(profileId: string): Promise<any[]> {
+  if (!db) await initDatabase();
+  return await db!.getAllAsync(
+    'SELECT * FROM notification_history WHERE profileId = ? ORDER BY scheduledDate DESC', profileId
+  );
+}
+
+// --- Backup / Restore ---
+
+export async function exportDatabase(): Promise<string> {
+  if (!db) await initDatabase();
+  const tables = ['profiles', 'journal_entries', 'settings', 'tarot_readings', 'favorites', 'notification_preferences', 'notification_history'];
+  const backup: Record<string, any[]> = {};
+  for (const table of tables) {
+    backup[table] = await db!.getAllAsync(`SELECT * FROM ${table}`);
+  }
+  return JSON.stringify(backup);
+}
+
+export async function importDatabase(json: string): Promise<void> {
+  if (!db) await initDatabase();
+  const backup = JSON.parse(json);
+  await db!.execAsync('BEGIN TRANSACTION');
+  try {
+    for (const [table, rows] of Object.entries(backup)) {
+      if (!Array.isArray(rows) || rows.length === 0) continue;
+      const first = rows[0] as Record<string, any>;
+      const keys = Object.keys(first);
+      const placeholders = keys.map(() => '?').join(', ');
+      const quotedKeys = keys.map((k) => `"${k}"`).join(', ');
+      for (const row of rows) {
+        const values = keys.map((k) => (row as Record<string, any>)[k] ?? null);
+        await db!.runAsync(`INSERT OR REPLACE INTO ${table} (${quotedKeys}) VALUES (${placeholders})`, ...values);
+      }
+    }
+    await db!.execAsync('COMMIT');
+  } catch {
+    await db!.execAsync('ROLLBACK');
+    throw new Error('Import failed');
+  }
+}
+
 // --- Search ---
 
 export interface SearchResult {
@@ -473,6 +602,38 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
   
   results.sort((a, b) => a.title.localeCompare(b.title));
   return results;
+}
+
+// --- Tarot Readings ---
+
+export interface TarotReadingRow {
+  id: string;
+  profileId: string;
+  spread: string;
+  cards: string;
+  positions: string;
+  date: string;
+  notes: string | null;
+}
+
+export async function addTarotReading(reading: TarotReadingRow): Promise<void> {
+  if (!db) await initDatabase();
+  await db!.runAsync(
+    'INSERT INTO tarot_readings (id, profileId, spread, cards, positions, date, notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    reading.id, reading.profileId, reading.spread, reading.cards, reading.positions, reading.date, reading.notes
+  );
+}
+
+export async function getTarotReadings(profileId: string): Promise<TarotReadingRow[]> {
+  if (!db) await initDatabase();
+  return await db!.getAllAsync<TarotReadingRow>(
+    'SELECT * FROM tarot_readings WHERE profileId = ? ORDER BY date DESC', profileId
+  );
+}
+
+export async function deleteTarotReading(id: string): Promise<void> {
+  if (!db) await initDatabase();
+  await db!.runAsync('DELETE FROM tarot_readings WHERE id = ?', id);
 }
 
 export async function clearDatabase(): Promise<void> {

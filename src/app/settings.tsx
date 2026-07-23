@@ -13,6 +13,14 @@ const THEME_OPTIONS: { key: CosmicTheme; label: string; color: string }[] = [
   { key: 'golden-mystic', label: 'Golden Mystic', color: '#b45309' },
   { key: 'emerald', label: 'Emerald', color: '#059669' },
   { key: 'cosmic-purple', label: 'Cosmic Purple', color: '#6d28d9' },
+  { key: 'rose-gold', label: 'Rose Gold', color: '#f472b6' },
+  { key: 'arctic', label: 'Arctic', color: '#06b6d4' },
+  { key: 'sunset', label: 'Sunset', color: '#f97316' },
+  { key: 'ocean', label: 'Ocean', color: '#14b8a6' },
+  { key: 'crimson', label: 'Crimson', color: '#dc2626' },
+  { key: 'lavender', label: 'Lavender', color: '#a78bfa' },
+  { key: 'obsidian', label: 'Obsidian', color: '#eab308' },
+  { key: 'aurora', label: 'Aurora', color: '#10b981' },
 ];
 
 export default function SettingsScreen() {
