@@ -85,7 +85,7 @@ export function analyzeLifePatterns(
   const currentYear = new Date().getFullYear();
   const currentAge = currentYear - birthYear;
 
-  const { lifePath, challengeNumbers, pinnacleCycles, hiddenPassion, maturity, balanceNumber } = numerologyResult;
+  const { lifePath, challengeNumbers, pinnacleCycles, hiddenPassion, balanceNumber } = numerologyResult;
   const startCycleYear = lifePath <= 9 ? lifePath : lifePath - 9;
 
   for (let cycle = 0; cycle < 9; cycle++) {
@@ -110,7 +110,6 @@ export function analyzeLifePatterns(
 
   if (challengeNumbers.length > 0) {
     const primaryChallenge = challengeNumbers[0];
-    const challengeAge = 0;
     patterns.push({
       type: 'challenge',
       title: `Primary Challenge: Number ${primaryChallenge}`,

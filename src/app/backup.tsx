@@ -5,6 +5,9 @@ import { useTheme } from '@/hooks/use-theme';
 import { Spacing } from '@/constants/theme';
 import { CosmicIcon } from '@/components/cosmic-icon';
 import * as DB from '@/services/database';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
+import * as DocumentPicker from 'expo-document-picker';
 
 export default function BackupScreen() {
   const insets = useSafeAreaInsets();
@@ -18,8 +21,6 @@ export default function BackupScreen() {
       setLoading(true);
       setStatus('Exporting...');
       const data = await DB.exportDatabase();
-      const FileSystem = require('expo-file-system');
-      const Sharing = require('expo-sharing');
       const file = new FileSystem.File(FileSystem.Paths.cache, 'cosmic-oracle-backup-' + Date.now() + '.json');
       await file.write(data);
       if (Sharing?.isAvailableAsync && await Sharing.isAvailableAsync()) {
@@ -54,8 +55,6 @@ export default function BackupScreen() {
 
   const handlePickFile = async () => {
     try {
-      const DocumentPicker = require('expo-document-picker');
-      const FileSystem = require('expo-file-system');
       if (!DocumentPicker?.getDocumentAsync) { setStatus('File picker not available'); return; }
       const result = await DocumentPicker.getDocumentAsync({
         type: 'application/json',

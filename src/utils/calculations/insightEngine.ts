@@ -112,10 +112,7 @@ export function generateInsights(
     .sort((a, b) => a[1] - b[1])[0][0];
 
   const lifePathNumber = numerology.lifePath;
-  const isFirePath = [1, 3, 5, 9].includes(lifePathNumber);
   const isEarthPath = [4, 8].includes(lifePathNumber);
-  const isAirPath = [2, 5, 7].includes(lifePathNumber);
-  const isWaterPath = [3, 6, 9].includes(lifePathNumber);
 
   if (sunElement === 'fire' && isEarthPath) {
     insights.push(buildInsight(
@@ -257,8 +254,6 @@ export function generateInsights(
   if (relationshipPatterns.length === 0) {
     relationshipPatterns.push('Your relationship style is uniquely your own. Focus on clear communication and emotional honesty to attract partners who truly match your frequency.');
   }
-
-  const allModules = [...new Set([...insights.flatMap((i) => i.relatedModules), 'blueprint', 'numerology'])];
 
   return {
     profileId: '',

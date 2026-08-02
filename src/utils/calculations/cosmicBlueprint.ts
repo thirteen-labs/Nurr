@@ -1,12 +1,11 @@
-import type { CosmicBlueprint, Profile, PlanetName, ZodiacElement, ElementBalance, ChineseZodiacAnimal, ChineseElement } from "@/types/cosmic";
-import { getSunSign } from "./sunSign";
+import type { CosmicBlueprint, Profile, PlanetName, ElementBalance, ChineseZodiacAnimal, ChineseElement } from "@/types/cosmic";
+import { getSunSign, getZodiacElement } from "./sunSign";
 import { getMoonSign } from "./moonSign";
 import { getRisingSign } from "./risingSign";
 import { getChineseZodiacFromDate } from "./chineseZodiac";
 import { calculateNumerology } from "./numerology";
 import { calculateEnergyScore } from "./forecast";
 import { getBirthMoonPhase } from "./lunarPhase";
-import { getZodiacElement } from "./sunSign";
 
 // ============================================================
 // BIRTHSTONES

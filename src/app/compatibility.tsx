@@ -90,8 +90,6 @@ export default function CompatibilityScreen() {
     const chineseB = calculateChineseZodiac(by);
 
     // Rising signs
-    const birthHourA = a.birthTime ? parseInt(a.birthTime.split(':')[0], 10) : 12;
-    const birthHourB = b.birthTime ? parseInt(b.birthTime.split(':')[0], 10) : 12;
     const risingA = getRisingSign(zodiacA, a.birthTime);
     const risingB = getRisingSign(zodiacB, b.birthTime);
 

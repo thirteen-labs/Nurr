@@ -1,8 +1,8 @@
 import type {
   BirthChart, PlanetaryPosition, ChartAspect, HouseCusp,
-  PlanetName, ZodiacSign, ZodiacElement, ZodiacQuality, AspectType,
+  PlanetName, ZodiacSign, ZodiacElement, ZodiacQuality,
 } from '@/types/cosmic';
-import { HOUSES, getHouseForSign } from '@/constants/cosmic/houses';
+import { getHouseForSign } from '@/constants/cosmic/houses';
 import { ASPECT_TYPES, getAspectInterpretation } from '@/constants/cosmic/aspects';
 
 const SIGNS: ZodiacSign[] = [
@@ -45,13 +45,6 @@ function dateHash(dateStr: string): number {
     hash = ((hash << 5) - hash + dateStr.charCodeAt(i)) | 0;
   }
   return Math.abs(hash);
-}
-
-function degreesToSign(totalDegrees: number): { sign: ZodiacSign; degree: number } {
-  const normalized = ((totalDegrees % 360) + 360) % 360;
-  const signIndex = Math.floor(normalized / 30);
-  const degree = normalized % 30;
-  return { sign: SIGNS[signIndex], degree: Math.round(degree * 10) / 10 };
 }
 
 function getSunDegreeInSign(birthDate: string): number {
@@ -105,8 +98,7 @@ export function calculateBirthChart(
   moonSign: ZodiacSign,
   risingSign: ZodiacSign,
 ): BirthChart {
-  const [year, month, day] = birthDate.split('-').map(Number);
-  const hour = birthTime ? parseInt(birthTime.split(':')[0]) : 12;
+  const [year, month] = birthDate.split('-').map(Number);
   const hash = dateHash(birthDate);
 
   const sunDegree = getSunDegreeInSign(birthDate);
@@ -146,7 +138,6 @@ export function calculateBirthChart(
 
   const mcSignIndex = (sunSignIndex + 9) % 12;
   const mcSign = SIGNS[mcSignIndex];
-  const mcDegree = seededRandom(hash + 10) * 30;
 
   const planets: { planet: PlanetName; sign: ZodiacSign; degree: number; retrograde: boolean }[] = [
     { planet: 'sun', sign: sunSign, degree: sunDegree, retrograde: false },

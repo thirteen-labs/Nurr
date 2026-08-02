@@ -8,7 +8,6 @@ import {
   calculateAllNumerology, calculateSunSign, calculateMoonSign, calculateRisingSign,
   calculateChineseZodiac, calculateChineseElement, generateInsights,
 } from '@/utils/calculations';
-import { CosmicIcon } from '@/components/cosmic-icon';
 import type { InsightCategory } from '@/types/cosmic';
 
 const CATEGORY_ICONS: Record<InsightCategory, string> = {

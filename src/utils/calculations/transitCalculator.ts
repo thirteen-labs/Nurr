@@ -1,7 +1,7 @@
 import type {
   TransitEntry, TransitReport, PlanetName, ZodiacSign, AspectType,
 } from '@/types/cosmic';
-import { getTransitSignInterpretation, PLANET_WEIGHTS } from '@/constants/cosmic/transits';
+import { getTransitSignInterpretation } from '@/constants/cosmic/transits';
 
 const SIGNS: ZodiacSign[] = [
   'aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo',
@@ -222,7 +222,6 @@ function generateOverallTheme(transits: TransitEntry[], significant: TransitEntr
   }
 
   const themes = outerPlanetTransits.map((t) => {
-    const weight = PLANET_WEIGHTS[t.planet];
     if (t.aspectToNatal === 'conjunction') return `intense ${t.planet} activation`;
     if (t.aspectToNatal === 'opposition') return `${t.planet} confrontation`;
     if (t.aspectToNatal === 'square') return `${t.planet} challenge`;

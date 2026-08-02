@@ -1,8 +1,8 @@
 import type { Forecast, ForecastPeriod, EnergyScore, DailyMessage, ZodiacSign, MoonPhase, ChineseZodiacAnimal } from "@/types/cosmic";
 import { calculatePersonalYear, calculatePersonalMonth, calculatePersonalDay } from "./numerology";
 import { calculateSunSign } from "./zodiac";
-import { calculateChineseZodiac, calculateChineseElement } from "./chineseZodiac";
-import { getMoonPhase, getMoonIllumination } from "./lunarPhase";
+import { calculateChineseZodiac } from "./chineseZodiac";
+import { getMoonPhase } from "./lunarPhase";
 import { getZodiacElement } from "./sunSign";
 
 // ============================================================
@@ -66,118 +66,6 @@ const LUNAR_MODIFIERS: Record<MoonPhase, { energyMod: number; theme: string; des
 function getLunarModifier(phase: MoonPhase): { energyMod: number; theme: string; description: string } {
   return LUNAR_MODIFIERS[phase];
 }
-
-// ============================================================
-// SUN SIGN ELEMENT INFLUENCE ON FORECASTS
-// ============================================================
-
-const ELEMENT_CAREER: Record<string, string[]> = {
-  fire: [
-    "Your bold leadership energy peaks — take initiative on the project that matters most",
-    "A competitive opportunity surfaces — your drive gives you the edge",
-    "Passion projects gain traction — invest your fire where it counts",
-    "A bold pitch or proposal will open new doors — trust your instincts",
-  ],
-  earth: [
-    "Steady, methodical work yields tangible results — patience is your power",
-    "Financial restructuring brings long-term security — review your portfolio",
-    "A practical solution to an old problem emerges — trust your grounded approach",
-    "Building reliable systems and processes will accelerate your goals",
-  ],
-  air: [
-    "Networking and collaboration unlock your next opportunity — reach out to allies",
-    "Your intellectual creativity shines — brainstorm and brainstorm more",
-    "A fresh perspective on an old challenge reveals the path forward",
-    "Social connections bring career doors — attend that event or meeting",
-  ],
-  water: [
-    "Trust your intuitive knowing about a career situation — your gut is accurate",
-    "Emotional intelligence is your superpower at work today — lead with empathy",
-    "A creative vision needs your emotional depth to come alive — follow the feeling",
-    "Deep focus on meaningful work brings profound results — avoid surface-level tasks",
-  ],
-};
-
-const ELEMENT_LOVE: Record<string, string[]> = {
-  fire: [
-    "Passion runs hot — express your desires with confidence and warmth",
-    "A spontaneous romantic gesture will deepen your connection",
-    "Your magnetic energy draws admirers — be intentional about who you engage with",
-    "Physical activities together reignite the spark — adventure awaits",
-  ],
-  earth: [
-    "Stability and reliability are your love language — show up consistently",
-    "A meaningful gift or act of service speaks louder than words today",
-    "Building something together — a home project, a plan — strengthens your bond",
-    "Sensory pleasures deepen intimacy — share a meal, a walk, a quiet moment",
-  ],
-  air: [
-    "Intellectual connection ignites your heart — share ideas and have that deep conversation",
-    "Wit and humor are your romantic weapons — laughter brings you closer",
-    "A social gathering creates romantic sparks — be open to new connections",
-    "Written words of love — a letter, a text, a poem — carry special weight today",
-  ],
-  water: [
-    "Emotional vulnerability creates profound intimacy — share your deeper feelings",
-    "Intuitive connection with your partner deepens — trust what you sense",
-    "Creative or spiritual activities together strengthen your soul bond",
-    "Honest conversations about feelings heal old wounds and build trust",
-  ],
-};
-
-const ELEMENT_FINANCE: Record<string, string[]> = {
-  fire: [
-    "Bold financial moves are favored — trust your instincts on that investment",
-    "Your entrepreneurial energy is high — launch or pitch that financial idea",
-    "A risk taken with confidence today pays dividends later — calculate and leap",
-    "Leadership roles bring financial rewards — step into visibility",
-  ],
-  earth: [
-    "Long-term investments and savings strategies are favored — build your foundation",
-    "Practical budgeting and financial planning yield security and peace of mind",
-    "Real estate or tangible assets deserve your attention — research thoroughly",
-    "Patience with financial growth is rewarded — avoid quick-fix schemes",
-  ],
-  air: [
-    "Financial ideas and strategies flow freely — brainstorm with trusted advisors",
-    "Diversifying your income streams protects and grows your wealth",
-    "Communication-based financial opportunities — consulting, teaching, writing — shine",
-    "Social connections lead to financial insights — have that money conversation",
-  ],
-  water: [
-    "Intuitive financial decisions are favored — trust your gut about that opportunity",
-    "Emotional spending patterns need awareness — pause before impulse purchases",
-    "Investing in healing, creativity, or spiritual growth yields unexpected returns",
-    "Shared finances benefit from honest emotional conversations",
-  ],
-};
-
-const ELEMENT_HEALTH: Record<string, string[]> = {
-  fire: [
-    "High physical energy — channel it into vigorous exercise or outdoor adventure",
-    "Your vitality is contagious — inspire others with your active lifestyle",
-    "Watch for burnout — balance intense activity with adequate rest and hydration",
-    "Competitive sports or high-intensity workouts satisfy your fire element",
-  ],
-  earth: [
-    "Consistent, moderate exercise builds lasting health — walking, yoga, gardening",
-    "Nourish your body with whole, natural foods — your body responds well to routine",
-    "Grounding activities in nature restore your energy — spend time outdoors",
-    "Physical body maintenance — checkups, stretching, massage — pay dividends",
-  ],
-  air: [
-    "Social exercise activities boost both body and mind — join a class or group",
-    "Mental health deserves attention — meditation, breathwork, journaling help",
-    "Variety in your fitness routine keeps you engaged — try something new",
-    "Fresh air and movement are essential — avoid prolonged sitting",
-  ],
-  water: [
-    "Gentle, flowing movement supports your body — swimming, tai chi, dance",
-    "Emotional health directly impacts physical health — process your feelings",
-    "Hydration is especially important — water intake supports your water element",
-    "Rest and recovery are not laziness — honor your body's need for stillness",
-  ],
-};
 
 // ============================================================
 // SPIRITUAL, TRAVEL, EDUCATION — Per Sun Sign
@@ -671,16 +559,8 @@ export function generateForecast(
   const py = calculatePersonalYear(birthDate);
   const key = String(py);
   const now = new Date();
-  const [y, m, d] = birthDate.split('-').map(Number);
+  const [, m, d] = birthDate.split('-').map(Number);
   const sunSign = calculateSunSign(m, d);
-  const sunElement = getZodiacElement(sunSign);
-  const moonPhase = getMoonPhase(now);
-  const lunarMod = getLunarModifier(moonPhase);
-  const planetaryDay = getPlanetaryDayRuler(now);
-  const chineseAnimal = calculateChineseZodiac(y);
-  const chineseInfluence = CHINESE_YEAR_INFLUENCE[chineseAnimal];
-  const pm = calculatePersonalMonth(birthDate);
-  const pd = calculatePersonalDay(birthDate);
 
   const baseSeed = now.getFullYear() + now.getMonth() + now.getDate() + py + d;
 
@@ -695,8 +575,6 @@ export function generateForecast(
   const spiritualPool = SPIRITUAL_FORECASTS[sunSign];
   const travelPool = TRAVEL_FORECASTS[sunSign];
   const educationPool = EDUCATION_FORECASTS[sunSign];
-
-  const signFortune = SIGN_FORTUNE[sunSign] ?? 4;
 
   return {
     love: pickFromPool(lovePool, 0),

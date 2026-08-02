@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/use-theme';
@@ -29,15 +29,10 @@ export default function FavoritesScreen() {
   const activeProfile = useProfileStore((s) => s.activeProfile);
   const [favorites, setFavorites] = useState<FavoriteRow[]>([]);
 
-  const loadFavorites = useCallback(async () => {
-    if (!activeProfile) return;
-    const rows = await DB.getFavorites(activeProfile.id);
-    setFavorites(rows);
-  }, [activeProfile]);
-
   useEffect(() => {
-    loadFavorites();
-  }, [loadFavorites]);
+    if (!activeProfile) return;
+    DB.getFavorites(activeProfile.id).then(setFavorites);
+  }, [activeProfile]);
 
   const removeFav = async (item: FavoriteRow) => {
     await DB.removeFavorite(item.profileId, item.itemType, item.itemId);

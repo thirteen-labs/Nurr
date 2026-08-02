@@ -14,7 +14,6 @@ import { getRisingSign } from '@/utils/calculations/risingSign';
 import { getChineseZodiacFromDate } from '@/utils/calculations/chineseZodiac';
 import { getMoonPhase, getMoonIllumination } from '@/utils/calculations/lunarPhase';
 import { CosmicIcon } from '@/components/cosmic-icon';
-import type { ZodiacSign } from '@/types/cosmic';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -171,7 +170,7 @@ export default function HomeScreen() {
           </Text>
           {dailyMessage && (
             <Text style={[styles.energyTheme, { color: theme.text }]}>
-              Today's Theme: <Text style={{ color: theme.accent, fontWeight: '800' }}>{dailyMessage.theme}</Text>
+              Today&apos;s Theme: <Text style={{ color: theme.accent, fontWeight: '800' }}>{dailyMessage.theme}</Text>
             </Text>
           )}
           <Text style={[styles.energyDesc, { color: theme.textSecondary }]}>
@@ -213,7 +212,7 @@ export default function HomeScreen() {
       {/* === AFFIRMATION & MANTRAS === */}
       {dailyMessage && (
         <View style={[styles.affirmationCard, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
-          <Text style={[styles.quoteMark, { color: theme.accent + '30' }]}>"</Text>
+          <Text style={[styles.quoteMark, { color: theme.accent + '30' }]}>{'"'}</Text>
           <Text style={[styles.affirmation, { color: theme.text }]}>
             {dailyMessage.affirmation}
           </Text>
@@ -300,7 +299,7 @@ export default function HomeScreen() {
       {/* === DAILY FORECAST SNAPSHOT === */}
       {profileData?.forecast && (
         <View style={[styles.forecastCard, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>Today's Forecast</Text>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Today&apos;s Forecast</Text>
           {([
             { key: 'love' as const, icon: 'Heart', label: 'Love' },
             { key: 'career' as const, icon: 'Briefcase', label: 'Career' },

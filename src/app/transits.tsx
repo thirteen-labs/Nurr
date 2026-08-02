@@ -4,10 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/use-theme';
 import { useProfileStore } from '@/stores/profile-store';
 import { Spacing } from '@/constants/theme';
-import { calculateTransits } from '@/utils/calculations';
-import { calculateSunSign, calculateMoonSign, calculateRisingSign } from '@/utils/calculations';
-import { CosmicIcon } from '@/components/cosmic-icon';
-import type { PlanetName, ZodiacSign, AspectType } from '@/types/cosmic';
+import { calculateTransits, calculateSunSign, calculateMoonSign, calculateRisingSign } from '@/utils/calculations';
+import type { PlanetName, ZodiacSign } from '@/types/cosmic';
 
 const PLANET_SYMBOLS: Record<PlanetName, string> = {
   sun: '☉', moon: '☽', mercury: '☿', venus: '♀', mars: '♂',
@@ -23,8 +21,6 @@ const SIGN_EMOJIS: Record<ZodiacSign, string> = {
 const ASPECT_COLORS: Record<string, string> = {
   conjunction: '#3b82f6', sextile: '#22c55e', square: '#ef4444', trine: '#a855f7', opposition: '#f97316',
 };
-
-const SLOW_PLANETS: PlanetName[] = ['jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
 
 export default function TransitsScreen() {
   const insets = useSafeAreaInsets();
@@ -97,8 +93,7 @@ export default function TransitsScreen() {
         </View>
 
         {displayedTransits.map((transit) => {
-          const isSlow = SLOW_PLANETS.includes(transit.planet);
-          const hasAspect = transit.aspectToNatal !== null;
+           const hasAspect = transit.aspectToNatal !== null;
           return (
             <View
               key={transit.planet}

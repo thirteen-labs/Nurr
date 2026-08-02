@@ -391,9 +391,6 @@ export function calculateFullCompatibility(input: {
   const scores = calculateCompatibility(input);
   const avg = Math.round(Object.values(scores).reduce((s, c) => s + c, 0) / Object.values(scores).length);
 
-  const risingA = input.risingSignA ?? input.zodiacA;
-  const risingB = input.risingSignB ?? input.zodiacB;
-
   const cosmicBondType = determineCosmicBondType(scores);
 
   const strengths: string[] = [];

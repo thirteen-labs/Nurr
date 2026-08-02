@@ -56,8 +56,6 @@ export function getAspectData(type: AspectType): AspectTypeData | undefined {
   return ASPECT_TYPES.find((a) => a.type === type);
 }
 
-type AspectKey = `${PlanetName}-${PlanetName}-${AspectType}`;
-
 export const ASPECT_INTERPRETATIONS: Record<string, string> = {
   'sun-moon-conjunction': 'Your core identity and emotions are deeply fused — you are who you feel. This creates tremendous inner consistency but can limit perspective.',
   'sun-moon-square': 'Tension between your conscious will and emotional needs creates inner conflict. Learning to honor both halves of yourself is a major life theme.',

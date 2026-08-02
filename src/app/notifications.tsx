@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/use-theme';
@@ -6,6 +6,7 @@ import { useProfileStore } from '@/stores/profile-store';
 import { Spacing } from '@/constants/theme';
 import { getMoonPhase } from '@/utils/calculations/lunarPhase';
 import { calculateAllNumerology } from '@/utils/calculations';
+import * as Notifications from 'expo-notifications';
 import { CosmicIcon } from '@/components/cosmic-icon';
 import * as DB from '@/services/database';
 import type { NotificationType, MoonPhase } from '@/types/cosmic';
@@ -43,35 +44,48 @@ export default function NotificationsScreen() {
 
   useEffect(() => {
     if (!activeProfile) return;
-    loadPrefs();
-    loadHistory();
+    DB.getNotificationPreferences(activeProfile.id).then((rows) => {
+      if (rows.length > 0) {
+        setPreferences((prev) => prev.map((p) => {
+          const row = rows.find((r: any) => r.type === p.type);
+          return row ? { ...p, enabled: row.enabled === 1, time: row.time, dbId: row.id } : p;
+        }));
+      }
+    });
+    DB.getNotificationHistory(activeProfile.id).then(setHistory);
   }, [activeProfile]);
 
-  async function loadPrefs() {
-    if (!activeProfile) return;
-    const rows = await DB.getNotificationPreferences(activeProfile.id);
-    if (rows.length > 0) {
-      setPreferences((prev) => prev.map((p) => {
-        const row = rows.find((r: any) => r.type === p.type);
-        return row ? { ...p, enabled: row.enabled === 1, time: row.time, dbId: row.id } : p;
-      }));
-    }
-  }
+  const cancelNotification = useCallback((type: NotificationType) => {
+    try {
+      Notifications.cancelScheduledNotificationAsync(type).catch(() => {});
+    } catch {}
+  }, []);
 
-  async function loadHistory() {
-    if (!activeProfile) return;
-    const rows = await DB.getNotificationHistory(activeProfile.id);
-    setHistory(rows);
-  }
+  const scheduleNotification = useCallback((type: NotificationType, pref: NotifPref) => {
+    try {
+      Notifications.scheduleNotificationAsync({
+        content: {
+          title: getNotifTitle(type),
+          body: getNotifBody(type),
+          data: { type },
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: 86400,
+          repeats: true,
+        },
+      }).catch(() => {});
+    } catch {}
+  }, []);
 
-  async function togglePreference(type: NotificationType) {
+  const togglePreference = useCallback(async (type: NotificationType) => {
     const pref = preferences.find((p) => p.type === type);
     if (!pref) return;
     const newEnabled = !pref.enabled;
     setPreferences((prev) => prev.map((p) => p.type === type ? { ...p, enabled: newEnabled } : p));
 
     if (!activeProfile) return;
-    const id = pref.dbId || Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const id = pref.dbId || `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
     await DB.upsertNotificationPreference({
       id,
       profileId: activeProfile.id,
@@ -90,32 +104,7 @@ export default function NotificationsScreen() {
     } else {
       cancelNotification(type);
     }
-  }
-
-  function scheduleNotification(type: NotificationType, pref: NotifPref) {
-    try {
-      const Notifications = require('expo-notifications');
-      Notifications.scheduleNotificationAsync({
-        content: {
-          title: getNotifTitle(type),
-          body: getNotifBody(type),
-          data: { type },
-        },
-        trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-          seconds: 86400,
-          repeats: true,
-        },
-      }).catch(() => {});
-    } catch {}
-  }
-
-  function cancelNotification(type: NotificationType) {
-    try {
-      const Notifications = require('expo-notifications');
-      Notifications.cancelScheduledNotificationAsync(type).catch(() => {});
-    } catch {}
-  }
+  }, [preferences, activeProfile, scheduleNotification, cancelNotification]);
 
   const moonPhase = useMemo(() => getMoonPhase(new Date()), []);
   const numerology = useMemo(() => {
@@ -237,7 +226,7 @@ export default function NotificationsScreen() {
           <Text style={[styles.infoTitle, { color: theme.accent }]}>✦ About Smart Notifications</Text>
           <Text style={[styles.infoText, { color: theme.textSecondary }]}>
             All notifications are generated locally on your device. No data is sent to any server.
-            Notifications are scheduled using your device's local notification system and work offline.
+            Notifications are scheduled using your device&apos;s local notification system and work offline.
           </Text>
         </View>
       </View>

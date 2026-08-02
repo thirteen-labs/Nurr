@@ -10,8 +10,7 @@ import { ELEMENT_MEANINGS } from '@/constants/cosmic/chineseZodiac';
 import { MOON_SIGNS } from '@/constants/cosmic/moonSigns';
 import { RISING_SIGNS } from '@/constants/cosmic/risingSigns';
 import { findBirthstone } from '@/constants/cosmic/birthstones';
-import { calculateSunSign, calculateRisingSign, calculateLifePath, calculateDestinyNumber, calculateChineseZodiac, calculateChineseElement, getBirthMoonPhase, getMoonSign } from '@/utils/calculations';
-import { getZodiacElement } from '@/utils/calculations';
+import { calculateSunSign, calculateRisingSign, calculateLifePath, calculateDestinyNumber, calculateChineseZodiac, calculateChineseElement, getBirthMoonPhase, getMoonSign, getZodiacElement } from '@/utils/calculations';
 
 interface BlueprintEntry {
   label: string;

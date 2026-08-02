@@ -4,12 +4,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/use-theme';
 import { useProfileStore } from '@/stores/profile-store';
 import { Spacing } from '@/constants/theme';
-import { calculateBirthChart } from '@/utils/calculations';
-import { calculateSunSign, calculateMoonSign, calculateRisingSign } from '@/utils/calculations';
+import { calculateBirthChart, calculateSunSign, calculateMoonSign, calculateRisingSign } from '@/utils/calculations';
 import { HOUSES } from '@/constants/cosmic/houses';
-import { ASPECT_TYPES } from '@/constants/cosmic/aspects';
 import { CosmicIcon } from '@/components/cosmic-icon';
-import type { BirthChart, PlanetaryPosition, ChartAspect, ZodiacSign, AspectType } from '@/types/cosmic';
+import type { BirthChart, ZodiacSign, AspectType } from '@/types/cosmic';
 
 const SIGN_EMOJIS: Record<ZodiacSign, string> = {
   aries: '♈', taurus: '♉', gemini: '♊', cancer: '♋',

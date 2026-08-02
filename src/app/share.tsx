@@ -15,8 +15,7 @@ import { getMoonPhase } from '@/utils/calculations/lunarPhase';
 import { MOON_PHASES } from '@/constants/cosmic/moonPhases';
 import { ZODIAC_SIGNS } from '@/constants/cosmic/zodiac';
 import { CHINESE_ZODIAC } from '@/constants/cosmic/chineseZodiac';
-import { CosmicIcon } from '@/components/cosmic-icon';
-import type { MoonPhase, ZodiacSign, ChineseZodiacAnimal } from '@/types/cosmic';
+import type { MoonPhase, ZodiacSign } from '@/types/cosmic';
 
 const PHASE_EMOJIS: Record<MoonPhase, string> = {
   'new-moon': '🌑', 'waxing-crescent': '🌒', 'first-quarter': '🌓', 'waxing-gibbous': '🌔',
@@ -254,7 +253,7 @@ export default function ShareScreen() {
                   </View>
                 </View>
                 {shareData.daily && (
-                  <Text style={styles.previewAffirmation}>"{shareData.daily.affirmation}"</Text>
+                  <Text style={styles.previewAffirmation}>{'"'}{shareData.daily.affirmation}{'"'}</Text>
                 )}
               </View>
             )}
