@@ -16,7 +16,7 @@ export default function ExploreScreen() {
           All your cosmic tools are available from the sidebar menu.
         </Text>
         <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
-          <Text style={[styles.cardTitle, { color: theme.text }]}>Welcome to Cosmic Oracle</Text>
+          <Text style={[styles.cardTitle, { color: theme.text }]}>Welcome to Asterion</Text>
           <Text style={[styles.cardDesc, { color: theme.textSecondary }]}>
             Tap the menu icon in the top-left corner to explore all features — Numerology, Astrology, Tarot, Compatibility, Forecasts, and more.
           </Text>

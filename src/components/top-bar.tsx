@@ -35,7 +35,7 @@ export function TopBar() {
         </Pressable>
 
         <Pressable onPress={() => router.navigate('/')} style={styles.titleContainer}>
-          <Text style={[styles.title, { color: theme.accent }]}>nurr</Text>
+          <Text style={[styles.title, { color: theme.accent }]}>Asterion</Text>
         </Pressable>
 
         <Pressable

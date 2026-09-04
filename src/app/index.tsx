@@ -117,7 +117,7 @@ export default function HomeScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + Spacing.six }}>
         <View style={styles.content}>
           <Text style={[styles.greeting, { color: theme.textSecondary }]}>Welcome to</Text>
-          <Text style={[styles.appName, { color: theme.accent }]}>Cosmic Oracle</Text>
+          <Text style={[styles.appName, { color: theme.accent }]}>Asterion</Text>
           <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
             Your all-in-one offline spiritual intelligence platform
           </Text>

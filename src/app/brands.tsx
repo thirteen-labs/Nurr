@@ -5,22 +5,109 @@ import { router } from 'expo-router';
 import { useTheme } from '@/hooks/use-theme';
 import { Spacing } from '@/constants/theme';
 import { BRANDS, BRANDS_BY_CATEGORY, BRAND_CATEGORIES, searchBrands } from '@/constants/cosmic/brands';
-import { CosmicIcon, type CosmicIconName } from '@/components/cosmic-icon';
+import { } from '@icons-pack/react-simple-icons';
 import type { BrandCategory } from '@/types/cosmic';
 
-const CATEGORY_ICONS: Record<BrandCategory, CosmicIconName> = {
-  technology: 'Monitor',
-  automotive: 'Briefcase',
-  fashion: 'Crown1',
-  'food-beverage': 'Heart',
-  beauty: 'Star1',
-  luxury: 'MagicStar',
-  entertainment: 'Sun1',
-  sports: 'Flash',
-  finance: 'Chart2',
-  'travel-hospitality': 'Global',
-  retail: 'Box',
-  'health-fitness': 'Heart',
+const BRAND_ICONS: Record<string, React.ComponentType> = {
+  apple: 'Apple',
+  samsung: 'Samsung',
+  google: 'Google',
+  microsoft: 'Microsoft',
+  meta: 'Meta',
+  amazon: 'Amazon',
+  netflix: 'Netflix',
+  spotify: 'Spotify',
+  tesla: 'Tesla',
+  toyota: 'Toyota',
+  mercedes: 'Mercedes-Benz',
+  bmw: 'BMW',
+  audi: 'Audi',
+  porsche: 'Porsche',
+  ferrari: 'Ferrari',
+  lamborghini: 'Lamborghini',
+  ford: 'Ford',
+  honda: 'Honda',
+  nissan: 'Nissan',
+  hyundai: 'Hyundai',
+  jaguar: 'Jaguar',
+  volvo: 'Volvo',
+  volkswagen: 'Volkswagen',
+  chevrolet: 'Chevrolet',
+  nike: 'Nike',
+  adidas: 'Adidas',
+  gucci: 'Gucci',
+  prada: 'Prada',
+  'louis-vuitton': 'Louis Vuitton',
+  chanel: 'Chanel',
+  hermes: 'Hermes',
+  dior: 'Dior',
+  versace: 'Versace',
+  burberry: 'Burberry',
+  zara: 'Zara',
+  hm: 'H&M',
+  'levi-strauss': 'Levi Strauss',
+  'ralph-lauren': 'Ralph Lauren',
+  'tommy-hilfiger': 'Tommy Hilfiger',
+  'cocacola': 'Coca-Cola',
+  pepsi: 'Pepsi',
+  starbucks: 'Starbucks',
+  mcdonalds: 'McDonald\'s',
+  nestle: 'Nestle',
+  kfc: 'KFC',
+  'red-bull': 'Red Bull',
+  heineken: 'Heineken',
+  budweiser: 'Budweiser',
+  subway: 'Subway',
+  domino: 'Domino\'s',
+  lvmh: 'LVMH',
+  cartier: 'Cartier',
+  rolex: 'Rolex',
+  'tiffany': 'Tiffany & Co.',
+  omega: 'Omega',
+  'loreal': 'L\'Oréal',
+  'estee-lauder': 'Estée Lauder',
+  sephora: 'Sephora',
+  lancome: 'Lancôme',
+  disney: 'Disney',
+  sony: 'Sony',
+  nintendo: 'Nintendo',
+  'warner-bros': 'Warner Bros.',
+  universal: 'Universal',
+  bbc: 'BBC',
+  'national-geographic': 'National Geographic',
+  puma: 'Puma',
+  'under-armour': 'Under Armour',
+  'the-north-face': 'The North Face',
+  patagonia: 'Patagonia',
+  'goldman-sachs': 'Goldman Sachs',
+  visa: 'Visa',
+  mastercard: 'Mastercard',
+  'american-express': 'American Express',
+  paypal: 'PayPal',
+  bloomberg: 'Bloomberg',
+  hilton: 'Hilton',
+  marriott: 'Marriott',
+  emirates: 'Emirates',
+  delta: 'Delta',
+  airbnb: 'Airbnb',
+  ikea: 'IKEA',
+  walmart: 'Walmart',
+  costco: 'Costco',
+  ebay: 'eBay',
+  target: 'Target',
+  uber: 'Uber',
+  spacex: 'SpaceX',
+  nvidia: 'NVIDIA',
+  intel: 'Intel',
+  amd: 'AMD',
+  ibm: 'IBM',
+  huawei: 'Huawei',
+  xiaomi: 'Xiaomi',
+  hp: 'HP',
+  dell: 'Dell',
+  canon: 'Canon',
+  oracle: 'Oracle',
+  salesforce: 'Salesforce',
 };
 
 export default function BrandsScreen() {
@@ -108,7 +195,19 @@ export default function BrandsScreen() {
   );
 }
 
+function getBrandIcon(slug: string): React.ComponentType {
+  const IconName = BRAND_ICONS[slug];
+  if (!IconName) return () => <Text style={styles.logo}>{slug}</Text>;
+  try {
+    const Module = require(`@icons-pack/react-simple-icons/${IconName}`);
+    return Module;
+  } catch {
+    return () => <Text style={styles.logo}>{slug}</Text>;
+  }
+}
+
 function BrandCard({ brand, theme, compact }: { brand: any; theme: any; compact?: boolean }) {
+  const BrandIcon = getBrandIcon(brand.slug);
   return (
     <Pressable
       onPress={() => router.push(`/brand/${brand.slug}` as any)}
@@ -119,7 +218,7 @@ function BrandCard({ brand, theme, compact }: { brand: any; theme: any; compact?
       ]}
     >
       <View style={styles.cardRow}>
-        <Text style={styles.logo}>{brand.logo}</Text>
+        <BrandIcon size={32} style={styles.logo} />
         <View style={styles.cardInfo}>
           <Text style={[styles.cardName, { color: theme.text }]}>{brand.name}</Text>
           <Text style={[styles.cardTagline, { color: theme.textSecondary }]} numberOfLines={1}>
@@ -159,7 +258,7 @@ const styles = StyleSheet.create({
   catHeader: { fontSize: 18, fontWeight: '700', marginTop: 8 },
   card: { borderRadius: 14, borderWidth: 1, padding: Spacing.three },
   cardRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  logo: { fontSize: 32 },
+  logo: { width: 32, height: 32 },
   cardInfo: { flex: 1 },
   cardName: { fontSize: 16, fontWeight: '700' },
   cardTagline: { fontSize: 13, marginTop: 2 },

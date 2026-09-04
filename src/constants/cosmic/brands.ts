@@ -4,25 +4,64 @@ type ZodSign = "aries" | "taurus" | "gemini" | "cancer" | "leo" | "virgo" | "lib
 type PName = "sun" | "moon" | "mercury" | "venus" | "mars" | "jupiter" | "saturn" | "uranus" | "neptune" | "pluto";
 type ZodEl = "fire" | "earth" | "air" | "water";
 
-const ZM: Record<ZodSign, { p: PName; e: ZodEl; c: [ZodSign, ZodSign, ZodSign] }> = {
-  aries: { p: "mars", e: "fire", c: ["leo", "sagittarius", "gemini"] },
-  taurus: { p: "venus", e: "earth", c: ["virgo", "capricorn", "cancer"] },
-  gemini: { p: "mercury", e: "air", c: ["libra", "aquarius", "aries"] },
-  cancer: { p: "moon", e: "water", c: ["scorpio", "pisces", "taurus"] },
-  leo: { p: "sun", e: "fire", c: ["aries", "sagittarius", "libra"] },
-  virgo: { p: "mercury", e: "earth", c: ["taurus", "capricorn", "cancer"] },
-  libra: { p: "venus", e: "air", c: ["gemini", "aquarius", "leo"] },
-  scorpio: { p: "pluto", e: "water", c: ["cancer", "pisces", "virgo"] },
-  sagittarius: { p: "jupiter", e: "fire", c: ["aries", "leo", "aquarius"] },
-  capricorn: { p: "saturn", e: "earth", c: ["taurus", "virgo", "scorpio"] },
-  aquarius: { p: "uranus", e: "air", c: ["gemini", "libra", "sagittarius"] },
-  pisces: { p: "neptune", e: "water", c: ["cancer", "scorpio", "taurus"] },
-};
-
 interface RawBrand {
   id: string; name: string; slug: string; cat: BrandCategory; desc: string; tagline: string;
   logo: string; year: number; founder: string; bn: number; z: ZodSign;
   kw: string[]; lc: string[]; ln: number[]; energy: string;
+}
+
+function transformBrand(raw: RawBrand): Brand {
+  const zodToAstrology = (sign: ZodSign): BrandAstrology => {
+    const ruling: Record<ZodSign, PName> = {
+      aries: "mars", taurus: "venus", gemini: "mercury", cancer: "moon",
+      leo: "sun", virgo: "mercury", libra: "venus", scorpio: "pluto",
+      sagittarius: "jupiter", capricorn: "saturn", aquarius: "uranus", pisces: "neptune",
+    };
+    const elem: Record<ZodSign, ZodEl> = {
+      aries: "fire", taurus: "earth", gemini: "air", cancer: "water",
+      leo: "fire", virgo: "earth", libra: "air", scorpio: "water",
+      sagittarius: "fire", capricorn: "earth", aquarius: "air", pisces: "water",
+    };
+    const compatible: Record<ZodSign, ZodSign[]> = {
+      aries: ["leo", "sagittarius", "gemini"], taurus: ["virgo", "capricorn", "cancer"],
+      gemini: ["libra", "aquarius", "aries"], cancer: ["scorpio", "pisces", "taurus"],
+      leo: ["aries", "sagittarius", "libra"], virgo: ["taurus", "capricorn", "cancer"],
+      libra: ["gemini", "aquarius", "leo"], scorpio: ["cancer", "pisces", "virgo"],
+      sagittarius: ["aries", "leo", "aquarius"], capricorn: ["taurus", "virgo", "scorpio"],
+      aquarius: ["gemini", "libra", "sagittarius"], pisces: ["cancer", "scorpio", "virgo"],
+    };
+    return {
+      zodiacSign: sign,
+      rulingPlanet: ruling[sign],
+      element: elem[sign],
+      compatibleSigns: compatible[sign],
+    };
+  };
+
+  const numerology: BrandNumerology = {
+    brandNumber: raw.bn,
+    expression: "—",
+    strengths: ["Innovation", "Growth"],
+    challenges: ["Balance", "Integration"],
+  };
+
+  return {
+    id: raw.id,
+    name: raw.name,
+    slug: raw.slug,
+    category: raw.cat,
+    description: raw.desc,
+    tagline: raw.tagline,
+    logo: raw.logo,
+    foundedYear: raw.year,
+    founder: raw.founder,
+    numerology,
+    astrology: zodToAstrology(raw.z),
+    keywords: raw.kw,
+    luckyColors: raw.lc,
+    luckyNumbers: raw.ln,
+    energy: raw.energy,
+  };
 }
 
 const RAW: RawBrand[] = [
@@ -236,77 +275,7 @@ const RAW: RawBrand[] = [
   { id: "herbalife", name: "Herbalife", slug: "herbalife", cat: "health-fitness", desc: "Global nutrition company providing weight management, sports nutrition, and personal care products.", tagline: "The Better You", logo: "🌿", year: 1980, founder: "Mark Hughes", bn: 3, z: "pisces", kw: ["nutrition","weight-management","wellness","supplements","fitness"], lc: ["#006837","#FFFFFF"], ln: [3,1,4,7], energy: "The Nourisher — helps people achieve their health and wellness goals" },
 ];
 
-const MEANINGS: Record<number, string> = {
-  1: "The Leader — independent, pioneering, ambitious. This brand blazes its own trail with confidence and vision.",
-  2: "The Diplomat — cooperative, intuitive, detail-oriented. This brand thrives through partnership and harmony.",
-  3: "The Creator — expressive, creative, optimistic. This brand communicates with flair and inspires joy.",
-  4: "The Builder — practical, disciplined, reliable. This brand creates lasting foundations through hard work.",
-  5: "The Adventurer — dynamic, versatile, freedom-loving. This brand thrives on change and pushes boundaries.",
-  6: "The Nurturer — responsible, loving, community-focused. This brand cares deeply and serves faithfully.",
-  7: "The Seeker — analytical, spiritual, wise. This brand pursues truth and deeper understanding.",
-  8: "The Executive — ambitious, powerful, abundant. This brand commands influence and achieves greatness.",
-  9: "The Humanitarian — wise, selfless, visionary. This brand serves humanity with compassion and global vision.",
-  11: "The Intuitive — enlightened, visionary, spiritual. This brand operates on a higher plane of insight.",
-  22: "The Master Builder — turns the grandest visions into tangible reality.",
-  33: "The Master Teacher — heals, uplifts, and inspires humanity through compassionate leadership.",
-};
-
-const N_STRENGTHS: Record<number, string[]> = {
-  1: ["Pioneering spirit","Confident leadership","Independent thinking","Visionary outlook","Courage to innovate"],
-  2: ["Exceptional partnership","Attention to detail","Intuitive decisions","Harmonious culture","Diplomatic approach"],
-  3: ["Creative expression","Inspiring communication","Optimistic energy","Artistic vision","Joyful brand voice"],
-  4: ["Unshakeable reliability","Practical solutions","Disciplined execution","Solid foundations","Patient growth"],
-  5: ["Dynamic adaptability","Fearless innovation","Versatile offerings","Progressive mindset","Freedom to explore"],
-  6: ["Deep responsibility","Community focus","Nurturing service","Family values","Trustworthy presence"],
-  7: ["Analytical depth","Wise perspective","Spiritual insight","Quality obsession","Truth-seeking nature"],
-  8: ["Commanding presence","Strategic ambition","Material mastery","Executive authority","Powerful execution"],
-  9: ["Global vision","Compassionate mission","Selfless service","Humanitarian values","Universal perspective"],
-  11: ["Spiritual insight","Visionary leadership","Intuitive innovation","Enlightened strategy","Inspirational impact"],
-  22: ["Visionary practicality","Massive scale","World-changing ambition","Masterful execution","Turning dreams into reality"],
-  33: ["Compassionate leadership","Healing influence","Transformative impact","Selfless dedication","Universal love"],
-};
-
-const N_CHALLENGES: Record<number, string[]> = {
-  1: ["Can appear arrogant or domineering","Risk of burning out from constant drive","May struggle with collaboration","Impatience with slower pace"],
-  2: ["Overly sensitive to criticism","Indecisive under pressure","Can be codependent on partners","Struggles with confrontation"],
-  3: ["Scattered focus across too many ideas","Tendency toward superficiality","May lack discipline","Oversensitivity to rejection"],
-  4: ["Resistant to change and innovation","Can be rigid and inflexible","Risk of stagnation","May miss creative opportunities"],
-  5: ["Restless and inconsistent","Can be irresponsible with commitments","Risk of over-expansion","May lack follow-through"],
-  6: ["Can be overly controlling","Tendency to worry excessively","May take on too much responsibility","Struggles to delegate"],
-  7: ["Can be overly secretive or isolated","Tendency toward perfectionism","May seem cold or distant","Over-analysis leads to inaction"],
-  8: ["Risk of becoming power-hungry","Materialistic tendencies","Can be intimidating or harsh","Work-life imbalance"],
-  9: ["Can be overly idealistic","Struggles with practicality","May neglect personal needs","Difficulty with boundaries"],
-  11: ["Overwhelmed by sensitivity","Can be impractical or dreamy","Nervous tension and anxiety","Struggles with grounding"],
-  22: ["Overwhelming pressure to deliver","Can be overly critical","Risk of burnout from massive goals","May struggle to delegate vision"],
-  33: ["Emotional overwhelm","Can sacrifice self too much","May attract neediness from others","Struggles to maintain boundaries"],
-};
-
-function buildBrand(r: RawBrand): Brand {
-  const z = ZM[r.z];
-  return {
-    id: r.id, name: r.name, slug: r.slug, category: r.cat,
-    description: r.desc, tagline: r.tagline, logo: r.logo,
-    foundedYear: r.year, founder: r.founder,
-    numerology: {
-      brandNumber: r.bn,
-      expression: MEANINGS[r.bn] ?? "",
-      strengths: N_STRENGTHS[r.bn] ?? [],
-      challenges: N_CHALLENGES[r.bn] ?? [],
-    },
-    astrology: {
-      zodiacSign: r.z,
-      rulingPlanet: z.p,
-      element: z.e,
-      compatibleSigns: z.c,
-    },
-    keywords: r.kw,
-    luckyColors: r.lc,
-    luckyNumbers: r.ln,
-    energy: r.energy,
-  };
-}
-
-export const BRANDS: Brand[] = RAW.map(buildBrand);
+export const BRANDS: Brand[] = RAW.map(transformBrand);
 
 export const BRANDS_BY_CATEGORY: Record<BrandCategory, Brand[]> = (() => {
   const map: Record<string, Brand[]> = {};
@@ -324,18 +293,21 @@ export const BRAND_CATEGORIES: BrandCategory[] = [
 ];
 
 export function findBrand(slug: string): Brand | undefined {
-  return BRANDS.find((b) => b.slug === slug);
+  return RAW.map(transformBrand).find((b) => b.slug === slug);
 }
 
 export function searchBrands(query: string): Brand[] {
   const q = query.toLowerCase().trim();
   if (!q) return [];
-  return BRANDS.filter(
-    (b) =>
-      b.name.toLowerCase().includes(q) ||
-      b.description.toLowerCase().includes(q) ||
-      b.keywords.some((k) => k.toLowerCase().includes(q)) ||
-      b.founder.toLowerCase().includes(q) ||
-      b.category.toLowerCase().includes(q)
-  ).slice(0, 50);
+  return RAW
+    .map(transformBrand)
+    .filter(
+      (b) =>
+        b.name.toLowerCase().includes(q) ||
+        b.description.toLowerCase().includes(q) ||
+        b.keywords.some((k) => k.toLowerCase().includes(q)) ||
+        b.founder.toLowerCase().includes(q) ||
+        b.category.toLowerCase().includes(q)
+    )
+    .slice(0, 50);
 }

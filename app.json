@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Nurr",
-    "slug": "Nurr",
+    "name": "Asterion",
+    "slug": "Asterion",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "nurr",
+    "scheme": "asterion",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/images/icon.png"

@@ -17,10 +17,9 @@ interface Step {
 
 const STEPS: Step[] = [
   {
-    title: 'Welcome to Cosmic Oracle',
+title: 'Welcome to Asterion',
     subtitle: 'Your Personal Spiritual Intelligence Platform',
-    icon: 'MagicStar',
-    description: 'Discover the cosmos within you. Cosmic Oracle is a fully offline, privacy-first spiritual platform that combines numerology, astrology, tarot, and more — all generated locally on your device.',
+    description: 'Discover the cosmos within you. Asterion is a fully offline, privacy-first spiritual platform that combines numerology, astrology, tarot, and more — all generated locally on your device.',
     features: ['No internet required', '100% private — no data leaves your device', 'Unlimited profiles for family & friends'],
   },
   {

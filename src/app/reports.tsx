@@ -192,7 +192,7 @@ export default function ReportsScreen() {
             ` : ''}
 
             <div class="footer">
-              ✦ Cosmic Oracle — Offline Spiritual Intelligence Platform ✦<br/>
+              ✦ Asterion — Offline Spiritual Intelligence Platform ✦<br/>
               Generated on ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </div>
           </body>
@@ -205,10 +205,10 @@ export default function ReportsScreen() {
         const blob = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
         const link = document.createElement('a');
         link.href = `data:application/pdf;base64,${blob}`;
-        link.download = `CosmicOracle_${reportData.name}_FullReport.pdf`;
+        link.download = `Asterion_${reportData.name}_FullReport.pdf`;
         link.click();
       } else {
-        const pdfName = `CosmicOracle_${reportData.name}_FullReport.pdf`;
+        const pdfName = `Asterion_${reportData.name}_FullReport.pdf`;
         const dest = `${FileSystem.documentDirectory}${pdfName}`;
         await FileSystem.moveAsync({ from: uri, to: dest });
         Alert.alert('PDF Saved', `Full report saved to:\n${dest}`);
