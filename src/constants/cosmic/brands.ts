@@ -1,4 +1,4 @@
-import type { Brand, BrandCategory } from '@/types/cosmic';
+import type { Brand, BrandAstrology, BrandCategory, BrandNumerology } from '@/types/cosmic';
 
 type ZodSign = "aries" | "taurus" | "gemini" | "cancer" | "leo" | "virgo" | "libra" | "scorpio" | "sagittarius" | "capricorn" | "aquarius" | "pisces";
 type PName = "sun" | "moon" | "mercury" | "venus" | "mars" | "jupiter" | "saturn" | "uranus" | "neptune" | "pluto";
